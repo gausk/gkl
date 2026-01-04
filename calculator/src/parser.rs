@@ -33,8 +33,7 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
             // LHS can be UnaryExpr or TERM
             let lhs = match first.as_rule() {
                 Rule::UnaryExpr => build_ast_from_unary_expr(first),
-                Rule::Term => build_ast_from_term(first),
-                _ => unreachable!(),
+                _ => build_ast_from_term(first),
             };
 
             let operator = pairs.next().unwrap();
@@ -50,7 +49,7 @@ fn build_ast_from_expr(pair: Pair<Rule>) -> Node {
                 if let Some(pair) = pair_buf {
                     let lhs = out;
                     let op = Operator::from(pair.as_str());
-                    let rhs = build_ast_from_expr(pairs.next().unwrap());
+                    let rhs = build_ast_from_term(pairs.next().unwrap());
                     out = Node::BinaryExpr {
                         lhs: Box::new(lhs),
                         op,
