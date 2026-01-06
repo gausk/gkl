@@ -1,7 +1,5 @@
 mod interpreter;
 
-
-
 // Interpreter — Executes source (or its AST) directly by evaluating it step-by-step at runtime.
 
 // JIT (Just-In-Time Compiler) — Compiles code to machine code at runtime, then executes the compiled result immediately.
