@@ -19,7 +19,7 @@ struct CodeGenerator<'ctx> {
 }
 
 impl<'ctx> CodeGenerator<'ctx> {
-    fn jit_compile_sum(&self) -> Option<JitFunction<'_, Addition>> {
+    fn jit_compile_add(&self) -> Option<JitFunction<'_, Addition>> {
         let i32_type = self.context.i32_type();
         let fn_type = i32_type.fn_type(&[i32_type.into(), i32_type.into()], false);
         let fn_val = self.module.add_function("add", fn_type, None);
@@ -48,8 +48,10 @@ fn main() -> Result<()> {
         builder: context.create_builder(),
     };
     let add = codegen
-        .jit_compile_sum()
+        .jit_compile_add()
         .ok_or_else(|| anyhow!("unable to JIT compile add"))?;
+
+    println!("{:?}", add);
 
     let x = 1;
     let y = 2;
