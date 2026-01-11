@@ -13,9 +13,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
+    - name: Prerequisites
+      run: apt update && apt install llvm
     - name: Build
       run: cargo build --verbose
     - name: Run tests
