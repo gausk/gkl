@@ -1,6 +1,7 @@
 use crate::Compile;
 use crate::ast::Node;
 use crate::compiler::vm::bytecode::Bytecode;
+use crate::compiler::vm::bytecode::Interpreter as ByteCodeInterpreter;
 
 const STACK_SIZE: usize = 512;
 
@@ -90,6 +91,20 @@ impl VM {
         // the stack pointer points to the next "free" space
         // which also hold most recently popped element.
         &self.stack[self.stack_ptr]
+    }
+}
+
+impl Compile for VM {
+    type Output = i32;
+
+    fn from_ast(ast: Vec<Node>) -> Self::Output {
+        let mut bytecode = ByteCodeInterpreter::from_ast(ast);
+        let mut vm = VM::new(bytecode);
+        vm.run();
+        match vm.last_popped() {
+            Node::Int(val) => *val,
+            _ => unreachable!(),
+        }
     }
 }
 

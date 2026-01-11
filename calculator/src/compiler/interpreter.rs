@@ -30,7 +30,7 @@ impl Eval {
     }
 }
 
-struct Interpreter;
+pub struct Interpreter;
 
 impl Compile for Interpreter {
     type Output = i32;

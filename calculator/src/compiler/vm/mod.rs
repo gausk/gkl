@@ -1,3 +1,3 @@
 mod bytecode;
 mod opcode;
-mod vm;
+pub mod vm;

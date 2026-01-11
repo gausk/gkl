@@ -3,7 +3,7 @@ use crate::ast::Node;
 use anyhow::Result;
 
 mod ast;
-mod compiler;
+pub mod compiler;
 mod parser;
 
 pub trait Compile {
