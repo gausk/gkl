@@ -75,7 +75,6 @@ fn build_ast_from_unary_expr(pair: Pair<Rule>) -> Node {
 }
 
 fn build_ast_from_term(pair: Pair<Rule>) -> Node {
-    println!("{:?}", pair.to_string());
     match pair.as_rule() {
         Rule::Int => {
             let int = pair.as_str().parse::<i32>().unwrap();

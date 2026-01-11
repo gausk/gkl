@@ -1,3 +1,4 @@
+#![allow(unused)]
 use crate::ast::Node;
 use anyhow::Result;
 
