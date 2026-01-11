@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Prerequisites
-      run: sudo apt update && sudo apt install llvm
+      run: sudo apt update && sudo apt install llvm-21* clang-21* lld-21* lldb-21*
     - name: Build
       run: cargo build --verbose
     - name: Run tests
