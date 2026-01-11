@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Prerequisites
-      run: apt update && apt install llvm
+      run: sudo apt update && sudo apt install llvm
     - name: Build
       run: cargo build --verbose
     - name: Run tests
