@@ -5,6 +5,7 @@ use anyhow::Result;
 mod ast;
 pub mod compiler;
 mod parser;
+mod primitive;
 
 pub trait Compile {
     type Output;

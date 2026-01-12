@@ -1,10 +1,11 @@
 [workspace]
+resolver = "3"
 members = ["calculator", "try-llvm"]
 
 [workspace.dependencies]
 anyhow = "1.0.100"
 cfg-if = "1.0.4"
-inkwell = { version = "0.7.1", features = ["llvm21-1"] }
-pest = "2.8.4"
-pest_derive = "2.8.4"
+inkwell = { version = "0.8.0", features = ["llvm21-1"] }
+pest = "2.8.5"
+pest_derive = "2.8.5"
 rustyline = "17.0.2"

@@ -9,7 +9,8 @@ use pest::iterators::{Pair, Pairs};
 pub struct CalcParser;
 
 pub fn parse(source: &str) -> Result<Vec<Node>> {
-    let pairs = parse_calc(source)?;
+    let pairs = parse_calc(source);
+    let pairs = pairs?;
     let mut nodes = Vec::new();
     for pair in pairs {
         if let Rule::Expr = pair.as_rule() {
@@ -79,6 +80,10 @@ fn build_ast_from_term(pair: Pair<Rule>) -> Node {
         Rule::Int => {
             let int = pair.as_str().parse::<i32>().unwrap();
             Node::Int(int)
+        }
+        Rule::Float => {
+            let float = pair.as_str().parse::<f64>().unwrap();
+            Node::Float(float)
         }
         Rule::Expr => build_ast_from_expr(pair),
         other => panic!("unknown term {:?}", other),

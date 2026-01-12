@@ -58,6 +58,20 @@ impl VM {
                         _ => panic!("Unknown types to OppSub"),
                     }
                 }
+                0x05 => {
+                    // OpMul
+                    match (self.pop(), self.pop()) {
+                        (Node::Int(rhs), Node::Int(lhs)) => self.push(Node::Int(lhs * rhs)),
+                        _ => panic!("Unknown types to OppMul"),
+                    }
+                }
+                0x06 => {
+                    // OpDiv
+                    match (self.pop(), self.pop()) {
+                        (Node::Int(rhs), Node::Int(lhs)) => self.push(Node::Int(lhs / rhs)),
+                        _ => panic!("Unknown types to OppDiv"),
+                    }
+                }
                 0x0A => {
                     // OpPlus
                     match self.pop() {
@@ -121,5 +135,15 @@ mod tests {
         let mut vm = VM::new(byte_code);
         vm.run();
         assert_eq!(vm.last_popped(), &Node::Int(1));
+    }
+
+    #[test]
+    fn test_multiply() {
+        let source = "1 + ((2 * 3) - (6 / 3))";
+        let byte_code = Interpreter::from_source(source).unwrap();
+        println!("{:?}", byte_code);
+        let mut vm = VM::new(byte_code);
+        vm.run();
+        assert_eq!(vm.last_popped(), &Node::Int(5));
     }
 }

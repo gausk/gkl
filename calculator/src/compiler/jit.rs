@@ -27,6 +27,7 @@ impl<'a> RecursiveBuilder<'a> {
                 match op {
                     Operator::Plus => val,
                     Operator::Minus => val.const_neg(),
+                    _ => unreachable!(),
                 }
             }
             Node::BinaryExpr { op, lhs, rhs } => {
@@ -35,6 +36,13 @@ impl<'a> RecursiveBuilder<'a> {
                 match op {
                     Operator::Plus => self.builder.build_int_add(left, right, "add_temp").unwrap(),
                     Operator::Minus => self.builder.build_int_sub(left, right, "sub_temp").unwrap(),
+                    Operator::Multiply => {
+                        self.builder.build_int_mul(left, right, "mul_temp").unwrap()
+                    }
+                    Operator::Divide => self
+                        .builder
+                        .build_int_signed_div(left, right, "div_temp")
+                        .unwrap(),
                 }
             }
         }
@@ -88,5 +96,16 @@ mod tests {
         assert_eq!(Jit::from_source("21 + 6").unwrap(), 27);
         assert_eq!(Jit::from_source("1 + 2 -3").unwrap(), 0);
         assert_eq!(Jit::from_source("1 + ((2 + 3) - (2 + 3))").unwrap(), 1);
+    }
+
+    #[test]
+    fn test_jit_multiply_and_divide() {
+        assert_eq!(Jit::from_source("2 * 3").unwrap(), 6);
+        assert_eq!(Jit::from_source("4 / 2").unwrap(), 2);
+    }
+
+    #[test]
+    fn test_operator_precedence() {
+        assert_eq!(Jit::from_source("2 + 2 * 3").unwrap(), 12);
     }
 }

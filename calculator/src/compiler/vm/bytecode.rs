@@ -64,6 +64,7 @@ impl Interpreter {
                 match op {
                     Operator::Plus => self.add_instruction(OpCode::OpPlus),
                     Operator::Minus => self.add_instruction(OpCode::OpMinus),
+                    _ => unreachable!(),
                 }
             }
             Node::BinaryExpr { op, lhs, rhs } => {
@@ -72,6 +73,8 @@ impl Interpreter {
                 match op {
                     Operator::Plus => self.add_instruction(OpCode::OpAdd),
                     Operator::Minus => self.add_instruction(OpCode::OpSub),
+                    Operator::Multiply => self.add_instruction(OpCode::OpMul),
+                    Operator::Divide => self.add_instruction(OpCode::OpDiv),
                 }
             }
         }
