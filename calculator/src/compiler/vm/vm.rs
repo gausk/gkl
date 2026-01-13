@@ -2,12 +2,14 @@ use crate::Compile;
 use crate::ast::Node;
 use crate::compiler::vm::bytecode::Bytecode;
 use crate::compiler::vm::bytecode::Interpreter as ByteCodeInterpreter;
+use crate::primitive::PrimitiveType;
+use anyhow::{Result, bail};
 
 const STACK_SIZE: usize = 512;
 
 pub struct VM {
     bytecode: Bytecode,
-    stack: [Node; STACK_SIZE],
+    stack: [PrimitiveType; STACK_SIZE],
     stack_ptr: usize,
 }
 
@@ -24,7 +26,7 @@ impl VM {
         }
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> Result<()> {
         let mut ip = 0;
         while ip < self.bytecode.instructions.len() {
             let inst_addr = ip;
@@ -46,62 +48,59 @@ impl VM {
                 }
                 0x03 => {
                     // OpAdd
-                    match (self.pop(), self.pop()) {
-                        (Node::Int(rhs), Node::Int(lhs)) => self.push(Node::Int(lhs + rhs)),
-                        _ => panic!("Unknown types to OppAdd"),
-                    }
+                    let rhs = self.pop();
+                    let lhs = self.pop();
+                    let value = lhs + rhs;
+                    self.push(value);
                 }
                 0x04 => {
                     // OpSub
-                    match (self.pop(), self.pop()) {
-                        (Node::Int(rhs), Node::Int(lhs)) => self.push(Node::Int(lhs - rhs)),
-                        _ => panic!("Unknown types to OppSub"),
-                    }
+                    let rhs = self.pop();
+                    let lhs = self.pop();
+                    let value = lhs - rhs;
+                    self.push(value);
                 }
                 0x05 => {
                     // OpMul
-                    match (self.pop(), self.pop()) {
-                        (Node::Int(rhs), Node::Int(lhs)) => self.push(Node::Int(lhs * rhs)),
-                        _ => panic!("Unknown types to OppMul"),
-                    }
+                    let rhs = self.pop();
+                    let lhs = self.pop();
+                    let value = lhs * rhs;
+                    self.push(value);
                 }
                 0x06 => {
                     // OpDiv
-                    match (self.pop(), self.pop()) {
-                        (Node::Int(rhs), Node::Int(lhs)) => self.push(Node::Int(lhs / rhs)),
-                        _ => panic!("Unknown types to OppDiv"),
-                    }
+                    let rhs = self.pop();
+                    let lhs = self.pop();
+                    let value = lhs / rhs;
+                    self.push(value);
                 }
                 0x0A => {
                     // OpPlus
-                    match self.pop() {
-                        Node::Int(val) => self.push(Node::Int(val)),
-                        _ => panic!("Unknown types to OpPlus"),
-                    }
+                    let value = self.pop();
+                    self.push(value);
                 }
                 0x0B => {
                     // OpMinus
-                    match self.pop() {
-                        Node::Int(val) => self.push(Node::Int(-val)),
-                        _ => panic!("Unknown types to OpMinus"),
-                    }
+                    let value = self.pop();
+                    self.push(-value);
                 }
-                _ => panic!("Invalid instruction"),
+                other => bail!("Unknown instruction {}", other),
             }
         }
+        Ok(())
     }
 
-    pub fn push(&mut self, node: Node) {
+    pub fn push(&mut self, node: PrimitiveType) {
         self.stack[self.stack_ptr] = node;
         self.stack_ptr += 1;
     }
 
-    pub fn pop(&mut self) -> Node {
+    pub fn pop(&mut self) -> PrimitiveType {
         self.stack_ptr -= 1;
         self.stack[self.stack_ptr].clone()
     }
 
-    pub fn last_popped(&self) -> &Node {
+    pub fn last_popped(&self) -> &PrimitiveType {
         // the stack pointer points to the next "free" space
         // which also hold most recently popped element.
         &self.stack[self.stack_ptr]
@@ -109,16 +108,13 @@ impl VM {
 }
 
 impl Compile for VM {
-    type Output = i32;
+    type Output = Result<PrimitiveType>;
 
     fn from_ast(ast: Vec<Node>) -> Self::Output {
-        let mut bytecode = ByteCodeInterpreter::from_ast(ast);
+        let mut bytecode = ByteCodeInterpreter::from_ast(ast)?;
         let mut vm = VM::new(bytecode);
-        vm.run();
-        match vm.last_popped() {
-            Node::Int(val) => *val,
-            _ => unreachable!(),
-        }
+        vm.run()?;
+        Ok(vm.last_popped().clone())
     }
 }
 
@@ -126,24 +122,35 @@ impl Compile for VM {
 mod tests {
     use super::*;
     use crate::compiler::vm::bytecode::Interpreter;
+    use crate::primitive::PrimitiveType;
 
     #[test]
     fn test_vm() {
         let source = "1 + ((2 + 3) - (2 + 3))";
-        let byte_code = Interpreter::from_source(source).unwrap();
+        let byte_code = Interpreter::from_source(source).unwrap().unwrap();
         println!("{:?}", byte_code);
         let mut vm = VM::new(byte_code);
         vm.run();
-        assert_eq!(vm.last_popped(), &Node::Int(1));
+        assert_eq!(*vm.last_popped(), 1.into());
     }
 
     #[test]
     fn test_multiply() {
         let source = "1 + ((2 * 3) - (6 / 3))";
-        let byte_code = Interpreter::from_source(source).unwrap();
+        let byte_code = Interpreter::from_source(source).unwrap().unwrap();
         println!("{:?}", byte_code);
         let mut vm = VM::new(byte_code);
         vm.run();
-        assert_eq!(vm.last_popped(), &Node::Int(5));
+        assert_eq!(*vm.last_popped(), 5.into());
+    }
+
+    #[test]
+    fn test_float() {
+        let source = "1.2 + 3.6";
+        let byte_code = Interpreter::from_source(source).unwrap().unwrap();
+        println!("{:?}", byte_code);
+        let mut vm = VM::new(byte_code);
+        vm.run();
+        assert_eq!(*vm.last_popped(), 4.8.into());
     }
 }

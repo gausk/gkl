@@ -1,3 +1,5 @@
+use crate::ast::Node;
+use anyhow::anyhow;
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -50,3 +52,15 @@ impl_binary_op!(Add, add, +);
 impl_binary_op!(Sub, sub, -);
 impl_binary_op!(Mul, mul, *);
 impl_binary_op!(Div, div, /);
+
+impl TryFrom<Node> for PrimitiveType {
+    type Error = anyhow::Error;
+
+    fn try_from(node: Node) -> Result<Self, Self::Error> {
+        match node {
+            Node::Int(n) => Ok(PrimitiveType::Int(n)),
+            Node::Float(n) => Ok(PrimitiveType::Float(n)),
+            other => Err(anyhow!("Cannot convert {:?} to PrimitiveType", other)),
+        }
+    }
+}
