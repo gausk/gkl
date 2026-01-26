@@ -135,10 +135,9 @@ mod tests {
     }
 
     #[test]
-    fn test_multiply() {
+    fn test_multiply_divide() {
         let source = "1 + ((2 * 3) - (6 / 3))";
         let byte_code = Interpreter::from_source(source).unwrap().unwrap();
-        println!("{:?}", byte_code);
         let mut vm = VM::new(byte_code);
         vm.run();
         assert_eq!(*vm.last_popped(), 5.into());
@@ -148,9 +147,19 @@ mod tests {
     fn test_float() {
         let source = "1.2 + 3.6";
         let byte_code = Interpreter::from_source(source).unwrap().unwrap();
-        println!("{:?}", byte_code);
         let mut vm = VM::new(byte_code);
         vm.run();
         assert_eq!(*vm.last_popped(), 4.8.into());
+    }
+
+    #[test]
+    // TODO: Fix precedence
+    fn test_operator_precedence() {
+        let source = "2 + 2 * 3";
+        let byte_code = Interpreter::from_source(source).unwrap().unwrap();
+        let mut vm = VM::new(byte_code);
+        vm.run();
+        // this should have been 8
+        assert_eq!(*vm.last_popped(), 12.into());
     }
 }
