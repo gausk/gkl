@@ -1,6 +1,10 @@
 [workspace]
 resolver = "3"
-members = ["calculator", "try-llvm"]
+members = [
+    "calculator",
+    "firstlang",
+    "try-llvm"
+]
 
 [workspace.dependencies]
 anyhow = "1.0.100"

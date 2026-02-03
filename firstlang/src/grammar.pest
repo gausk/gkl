@@ -1,0 +1,13 @@
+// New: Statements instead of just expressions
+Program = _{ SOI ~ Stmt* ~ EOI }
+Stmt = { Function | Return | Assignment | Expr }
+
+// New: Identifiers for variables and function names
+Identifier = @{ !KEYWORD ~ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+
+// New: Functions with parameters
+Function = { "def" ~ Identifier ~ "(" ~ Params? ~ ")" ~ Block }
+
+// New: Control flow
+Conditional = { "if" ~ "(" ~ Expr ~ ")" ~ Block ~ "else" ~ Block }
+WhileLoop = { "while" ~ "(" ~ Expr ~ ")" ~ Block }
